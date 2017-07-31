@@ -4,6 +4,8 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from project.models import User, LargeGenre, MiddleGenre, Topic
 from project.serializers import UserSerializer, LargeGenreSerializer, MiddleGenreSerializer, TopicSerializer
+from collections import OrderedDict
+import pdb
 
 # @csrf_exempt
 # def user_list(request):
@@ -55,31 +57,34 @@ from project.serializers import UserSerializer, LargeGenreSerializer, MiddleGenr
 def large_genre_list(request, area_id):
     if request.method == 'GET':
         try:
-            lgenres = LargeGenre.objects.fileter(prefecture_id=area_id)
+            lgenres = LargeGenre.objects.filter(city_id=area_id)
         except LargeGenre.DoesNotExist:
             return HttpResponse(status=404)
         serializer = LargeGenreSerializer(lgenres, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        data = OrderedDict([('large_genre_list', serializer.data)])
+        return JsonResponse(data, safe=False)
 
 @csrf_exempt
-def middle_genre_list(request, large_genre_id, area_id):
+def middle_genre_list(request, large_genre_id):
     if request.method == 'GET':
         try:
-            mgenres = MiddleGenre.objects.filter(large_genre_id=large_genre_id, prefecture_id=area_id)
+            mgenres = MiddleGenre.objects.filter(large_genre_id=large_genre_id)
         except MiddleGenre.DoesNotExist:
             return HttpResponse(status=404)
         serializer = MiddleGenreSerializer(mgenres, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        data = OrderedDict([('middle_genre_list', serializer.data)])
+        return JsonResponse(data, safe=False)
 
 @csrf_exempt
-def topic_list(request, area_id, middle_genre_id):
+def topic_list(request, middle_genre_id):
     if request.method == 'GET':
         try:
-            topics = Topic.objects.filter(middle_genre_id=middle_genre_id, prefecture_id=area_id)
+            topics = Topic.objects.filter(middle_genre_id=middle_genre_id)
         except Topic.DoesNotExist:
             return HttpResponse(status=404)
         serializer = TopicSerializer(topics, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        data = OrderedDict([('topic_list', serializer.data)])
+        return JsonResponse(data, safe=False)
 
 @csrf_exempt
 def topic_detail(request, topic_id):
@@ -89,4 +94,5 @@ def topic_detail(request, topic_id):
         except Topic.DoesNotExist:
             return HttpResponse(status=404)
         serializer = MiddleGenreSerializer(topic)
-        return JsonResponse(serializer.data, safe=False)
+        data = OrderedDict([('topic', serializer.data)])
+        return JsonResponse(data, safe=False)

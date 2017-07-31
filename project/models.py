@@ -11,11 +11,16 @@ class User(models.Model):
 class Prefecture(models.Model):
     name = models.CharField(max_length = 255)
 
+class City(models.Model):
+    prefecture = models.ForeignKey(Prefecture)
+    name = models.CharField(max_length = 255)
+
+
 class LargeGenre(models.Model):
     class Meta:
-        unique_together = (('prefecture', 'name'),)
+        unique_together = (('city', 'name'),)
 
-    prefecture = models.ForeignKey(Prefecture)
+    city = models.ForeignKey(City, default="13")
     name = models.CharField(max_length = 255)
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
@@ -23,10 +28,9 @@ class LargeGenre(models.Model):
 
 class MiddleGenre(models.Model):
     class Meta:
-        unique_together = (('prefecture', 'large_genre', 'name'),)
+        unique_together = (('large_genre', 'name'),)
 
     name = models.CharField(max_length = 255)
-    prefecture = models.ForeignKey(Prefecture)
     large_genre = models.ForeignKey(LargeGenre, related_name = 'middle_genres')
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)

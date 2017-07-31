@@ -24,23 +24,23 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 class LargeGenreSerializer(serializers.ModelSerializer):
-    middle_genre_number = serializers.SerializerMethodField()
+    sub_content_count = serializers.SerializerMethodField()
 
     class Meta:
         model = LargeGenre
-        fields = ('id', 'name', 'created_at', 'updated_at', 'is_deleted', 'middle_genre_number')
+        fields = ('id', 'name', 'created_at', 'updated_at', 'is_deleted', 'sub_content_count')
 
-    def get_middle_genre_number(self, obj):
+    def get_sub_content_count(self, obj):
         return obj.middle_genres.all().count()
 
 class MiddleGenreSerializer(serializers.ModelSerializer):
     topic_number = serializers.SerializerMethodField()
-    def get_topic_number(self, obj):
+    def get_sub_content_count(self, obj):
         return obj.topics.all().count()
 
     class Meta:
         model = MiddleGenre
-        fields = ('id', 'name', 'large_genre_id', 'created_at', 'updated_at', 'is_deleted', 'topic_number')
+        fields = ('id', 'name', 'large_genre_id', 'created_at', 'updated_at', 'is_deleted', 'sub_content_count')
 
 class TopicSerializer(serializers.ModelSerializer):
     class Meta:
