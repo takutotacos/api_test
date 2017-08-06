@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from project.models import User, LargeGenre, MiddleGenre, Topic
+from project.models import User, LargeGenre, MiddleGenre, Topic, Prefecture, City, Subscription
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,6 +23,16 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class PrefectureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Prefecture
+        fields = ('id', 'name')
+
+class CitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields =('id', 'name')
+
 class LargeGenreSerializer(serializers.ModelSerializer):
     sub_content_count = serializers.SerializerMethodField()
 
@@ -34,7 +44,8 @@ class LargeGenreSerializer(serializers.ModelSerializer):
         return obj.middle_genres.all().count()
 
 class MiddleGenreSerializer(serializers.ModelSerializer):
-    topic_number = serializers.SerializerMethodField()
+    sub_content_count = serializers.SerializerMethodField()
+
     def get_sub_content_count(self, obj):
         return obj.topics.all().count()
 
@@ -46,3 +57,14 @@ class TopicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Topic
         fields = ('id', 'title', 'description', 'large_genre_id', 'middle_genre_id', 'tag_id', 'image')
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = ('id', 'user_id', 'middle_genre_id')
+
+    def create(self, validated_data):
+        """
+        Create and return a new subscription instance, given the validated data
+        """
+        return Subscription.objects.create(**validated_data)

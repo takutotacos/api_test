@@ -70,3 +70,9 @@ class Comment(models.Model):
     content = models.CharField(max_length = 255)
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
+
+class Subscription(models.Model):
+    class Meta:
+        unique_together = (('user', 'middle_genre'),)
+    user = models.ForeignKey(User)
+    middle_genre = models.ForeignKey(MiddleGenre)
