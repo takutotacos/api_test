@@ -5,12 +5,10 @@ from rest_framework.parsers import JSONParser
 from project.models import User, LargeGenre, MiddleGenre, Topic, Prefecture, City, Subscription
 from project.serializers import UserSerializer, LargeGenreSerializer, MiddleGenreSerializer, TopicSerializer, PrefectureSerializer, CitySerializer, SubscriptionSerializer
 from collections import OrderedDict
-import pdb
 
 @csrf_exempt
 def user_create(request):
     if request.method == 'POST':
-        # pdb.set_trace()
         serializer = UserSerializer(data=request.POST)
         if serializer.is_valid():
             serializer.save()
@@ -38,20 +36,19 @@ def user_subscription(request, user_id):
     if request.method == 'GET':
         subscriptions = Subscription.objects.filter(user_id=user.id)
         serializer = SubscriptionSerializer(subscriptions, many=True)
-        data = OrderedDict([('subscriptions', serializer.data)])
+        data = OrderedDict([('subscription_list', serializer.data)])
         return JsonResponse(data, safe=False)
 
     if request.method == 'POST':
         # パラメータ: user_id, middle_genre_id
-        subscription = user.subscription_set.create(middle_genre_id=request.POST.get('middle_genre_id', ''))
-        serializer = SubscriptionSerializer(data=subscription)
-        # serializer = SubscriptionSerializer(data=(request.POST.get('user_id'))
-        if serializer.is_valid():
-            serializer.save()
-            data = OrderedDict([('subscription', serializer.data)])
-            return JsonResponse(data, status=201)
-        data = OrderedDict([('subscription', serializer.data)])
-        return JsonResponse(data, status=400)
+        try:
+            middle_genre = MiddleGenre.objects.get(pk=request.POST.get('middle_genre_id',''))
+        except MiddleGenre.DoesNotExist:
+            return HttpResponse(status=404)
+        subscription = user.subscription_set.create(middle_genre_id=middle_genre.id)
+        subscription.save()
+        data = OrderedDict([('subscription', '')])
+        return JsonResponse(data=data, status=201)
 
 @csrf_exempt
 def user_subscription_delete(request, user_id):
